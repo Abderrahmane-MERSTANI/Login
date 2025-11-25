@@ -1,6 +1,17 @@
 <?php
-header("Location: authentification.php");
-exit();
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    header("Location: authentification.php");
+    exit();
+}
+
+if (isset($_POST['deconnexion'])) {
+    session_unset();
+    session_destroy();
+    header("Location: authentification.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -12,10 +23,10 @@ exit();
 <body>
 
 <div class="container">
-    <h2>Session</h2>
+    <h2>Bienvenue, <?= htmlspecialchars($_SESSION['user']); ?></h2>
+
     <form method="POST">
-        
-        <button type="submit" name="deconnexion" id="deconnexion">Deconnexion</button>
+        <button type="submit" name="deconnexion" id="deconnexion">Déconnexion</button>
     </form>
 </div>
 
