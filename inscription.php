@@ -7,20 +7,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = trim($_POST["password"]);
     $repassword = trim($_POST["repassword"]);
 
-    // Vérification des mots de passe
     if ($password !== $repassword) {
         $error = "Les mots de passe ne sont pas les mêmes.";
     } else {
-        try{
-        $pdo = new PDO("mysql:host=localhost;dbname=inscription","root","");   // poo = le nome du dossier du projet
+        try {
+            $pdo = new PDO("mysql:host=localhost;dbname=inscription", "root", "");
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die($e->getMessage());
         }
-        catch(PDOExeption $e){
-        echo $e->getMessage();
-        }
-        $req = $pdo->prepare("insert into inscription (nom,prenom,login,password)values(?,?,?,?)");  //requet MySQL pour l'insersion des information dans la base de donnees
-        $req->execute(array("$nom","$prenom","$login",md5("$password")));
 
-        // Redirection vers login.php
+        $req = $pdo->prepare("INSERT INTO inscription (nom, prenom, login, password) VALUES (?, ?, ?, ?)");
+        $req->execute([$nom, $prenom, $login, password_hash($password, PASSWORD_DEFAULT)]);
+
         header("Location: authentification.php");
         exit();
     }
@@ -37,6 +36,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <div class="container">
     <h2>Inscription</h2>
+
+    <?php if (!empty($error)): ?>
+        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+
     <form method="POST">
         <input type="text" name="nom" placeholder="Nom" required>
         <input type="text" name="prenom" placeholder="Prénom" required>
